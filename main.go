@@ -3,9 +3,12 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"log"
+	"time"
 
 	"github.com/briheet/micro/client"
+	"github.com/briheet/micro/proto"
 )
 
 func main() {
@@ -21,4 +24,21 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	go func() {
+		for {
+			time.Sleep(3 * time.Second)
+			resp, err := grpcClient.FetchPrice(ctx, &proto.PriceRequest{Ticker: "BTC"})
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			fmt.Printf("%+v\n", resp)
+		}
+	}()
+
+	go makeGRPCServerAndRun(*grpcAddr, svc)
+
+	jsonServer := NewJSONAPIServer(*jsonAddr, svc)
+	jsonServer.Run()
 }
