@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
+	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 var prices = map[string]float64{
@@ -25,4 +28,24 @@ func (s *priceService) FetchPrice(c context.Context, ticker string) (float64, er
 	}
 
 	return price, nil
+}
+
+type loggingService struct {
+	next PriceService
+}
+
+func (s loggingService) FetchPrice(ctx context.Context, ticker string) (price float64, err error) {
+	defer func(begin time.Time) {
+		reqID := ctx.Value("requestID")
+
+		logrus.WithFields(logrus.Fields{
+			"requestID": reqID,
+			"took":      time.Since(begin),
+			"err":       err,
+			"price":     price,
+			"ticker":    ticker,
+		}).Info("FetchPrice")
+	}(time.Now())
+
+	return s.next.FetchPrice(ctx, ticker)
 }

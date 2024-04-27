@@ -13,7 +13,7 @@ vet: fmt
 .PHONY: vet
 
 build: vet
-	go build ./...
+	go build -o micro
 .PHONY: build
 
 run: fmt

@@ -37,7 +37,7 @@ func main() {
 		}
 	}()
 
-	go makeGRPCServerAndRun(*grpcAddr, svc)
+	go makeGRPCServerandRun(*grpcAddr, svc)
 
 	jsonServer := NewJSONAPIServer(*jsonAddr, svc)
 	jsonServer.Run()
